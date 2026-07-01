@@ -1,0 +1,36 @@
+# Dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary Microsoft Office files
+~$*
+~WRL*.tmp
+
+# Runtime uploads
+backend/uploads/avatars/*
+!backend/uploads/avatars/.gitkeep
