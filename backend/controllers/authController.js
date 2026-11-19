@@ -5,7 +5,11 @@ import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 
 const SALT_ROUNDS = 10;
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'thanhtinnguyen870@gmail.com';
+const ADMIN_EMAILS = [
+  (process.env.ADMIN_EMAIL || 'thanhtinnguyen870@gmail.com').toLowerCase().trim(),
+  'admin@foodcare.ai',
+];
+const isAdminEmail = (email) => ADMIN_EMAILS.includes(String(email || '').toLowerCase().trim());
 const GOOGLE_CLIENT_ID =
   process.env.GOOGLE_CLIENT_ID ||
   '477830917581-35397qfespe98je3et5ns79dnrr7fb4i.apps.googleusercontent.com';
@@ -88,8 +92,8 @@ export const loginWithGoogle = async (req, res) => {
     }
 
     const email = payload.email.toLowerCase();
-    const expectedRole = email === ADMIN_EMAIL ? 'admin' : 'user';
     let user = await User.findOne({ email });
+    const expectedRole = (user?.role === 'admin' || isAdminEmail(email)) ? 'admin' : 'user';
 
     if (!user) {
       const salt = await bcrypt.genSalt(SALT_ROUNDS);
@@ -135,9 +139,9 @@ export const loginWithGoogle = async (req, res) => {
 
 export const devSimulateGoogleLogin = async (req, res) => {
   try {
-    const email = (req.body.email || ADMIN_EMAIL).toLowerCase().trim();
+    const email = (req.body.email || ADMIN_EMAILS[0]).toLowerCase().trim();
     const name = req.body.name || (email.split('@')[0]);
-    const expectedRole = email === ADMIN_EMAIL ? 'admin' : 'user';
+    const expectedRole = isAdminEmail(email) ? 'admin' : 'user';
 
     let user = await User.findOne({ email });
     if (!user) {
@@ -199,7 +203,7 @@ export const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(SALT_ROUNDS);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const role = email === ADMIN_EMAIL ? 'admin' : 'user';
+    const role = isAdminEmail(email) ? 'admin' : 'user';
 
     const user = await User.create({
       name,
@@ -249,7 +253,7 @@ export const loginUser = async (req, res) => {
         return res.status(401).json({ message: 'TÃ i khoáº£n cá»§a báº¡n Ä‘Ã£ bá»‹ khÃ³a.' });
       }
 
-      const expectedRole = user.email.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user';
+      const expectedRole = (user.role === 'admin' || isAdminEmail(user.email)) ? 'admin' : 'user';
       if (user.role !== expectedRole) {
         user.role = expectedRole;
         await user.save();
@@ -282,7 +286,7 @@ export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password').populate('favoriteFoods');
     if (user) {
-      const expectedRole = user.email.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user';
+      const expectedRole = (user.role === 'admin' || isAdminEmail(user.email)) ? 'admin' : 'user';
       if (user.role !== expectedRole) {
         user.role = expectedRole;
         await user.save();
