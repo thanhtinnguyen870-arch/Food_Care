@@ -28,7 +28,7 @@ const userSchema = mongoose.Schema(
     },
     avatar: {
       type: String,
-      default: 'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg'
+      default: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'
     },
     role: {
       type: String,
