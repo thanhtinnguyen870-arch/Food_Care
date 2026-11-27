@@ -31,9 +31,10 @@ axiosClient.interceptors.response.use(
 
     if (config && (isNetworkOrTimeout || isServerWakingUp)) {
       config.__retryCount = config.__retryCount || 0;
-      if (config.__retryCount < 2) {
+      const maxRetries = isServerWakingUp ? 4 : 2;
+      if (config.__retryCount < maxRetries) {
         config.__retryCount += 1;
-        const delay = config.__retryCount * 600;
+        const delay = isServerWakingUp ? config.__retryCount * 2500 : config.__retryCount * 600;
         await new Promise((resolve) => setTimeout(resolve, delay));
         return axiosClient(config);
       }
